@@ -14,25 +14,12 @@ import edu.wpi.first.math.util.Units;
 import swervelib.math.Matter;
 import swervelib.parser.PIDFConfig;
 
-/**
- * The Constants class provides a convenient place for teams to hold robot-wide
- * numerical or boolean
- * constants. This class should not be used for any other purpose. All constants
- * should be declared
- * globally (i.e. public static). Do not put anything functional in this class.
- *
- * <p>
- * It is advised to statically import this class (or one of its inner classes)
- * wherever the
- * constants are needed, to reduce verbosity.
- */
+
 public final class Constants {
 
   // LED constants
 
-  // public static final int CANdleID1 = 1;
-  // public static final int CANdleID2 = 2;
-
+//need to add shufflebaord constant editing
   public static final boolean mantis = false;
   public static final double LIMELIGHT_DEADBAND = 0.15;
   public static final double MIN_STEER_K = .05;
@@ -174,21 +161,6 @@ public final class Constants {
 
     public static final double ELBOW_FORWARD_LIMIT = Units.degreesToRadians(70);
     public static final double ELBOW_REVERSE_LIMIT = Units.degreesToRadians(-100);
-
-    public enum ArmState {
-      NONE(Rotation2d.fromDegrees(0), Rotation2d.fromDegrees(0)),
-      STOWED(Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(66)),
-      FLOOR_INTAKE(Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(-15)),
-      SHELF_INTAKE(Rotation2d.fromDegrees(-20), Rotation2d.fromDegrees(10)),
-      HIGH_CONE_SCORE(Rotation2d.fromDegrees(-11), Rotation2d.fromDegrees(25)),
-      HIGH_CONE_SCORE_LOWERED(Rotation2d.fromDegrees(-11), Rotation2d.fromDegrees(5)),
-      MID_CONE_SCORE(Rotation2d.fromDegrees(-59), Rotation2d.fromDegrees(40)),
-      MID_CONE_SCORE_LOWERED(Rotation2d.fromDegrees(-59), Rotation2d.fromDegrees(20)),
-      HIGH_CUBE_SCORE_PLACE(Rotation2d.fromDegrees(37.5), Rotation2d.fromDegrees(-30.5)),
-      HIGH_CUBE_SCORE_SHOOT(Rotation2d.fromDegrees(-99), Rotation2d.fromDegrees(32)),
-      MID_CUBE_SCORE(Rotation2d.fromDegrees(-95.5), Rotation2d.fromDegrees(22)),
-      HYBRID_SCORE(Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(0));
-
       public Rotation2d shoulderAngle;
       public Rotation2d elbowAngle;
 
@@ -196,7 +168,7 @@ public final class Constants {
         this.shoulderAngle = shoulderAngle;
         this.elbowAngle = elbowAngle;
       }
-    }
+    
   }
 
   public static final class Drivebase {

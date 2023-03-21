@@ -54,80 +54,34 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * trigger mappings) should be declared here.
  */
 public class RobotContainer {
-
-  // private final PhotonCamera photonCamera = new PhotonCamera("photonCamera");
-
   private static final SendableChooser<String> AutoPath = new SendableChooser<>();
-  
-
-  // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
       "swerve/falcon"));
-
+      
+  public final Elevator m_Elevator = new Elevator();
 
   GenericHID driverXbox = new GenericHID(0);
-  //private final GenericHID conOperator = new GenericHID(2);
-GenericHID operator = new GenericHID(1);
+  // private final GenericHID conOperator = new GenericHID(2);
+  GenericHID operator = new GenericHID(1);
 
   private static AprilTagFieldLayout aprilTagField = null;
-
-  /* Driver Buttons */
-  private final JoystickButton yButton1 = new JoystickButton(
-    operator,
-    XboxController.Button.kY.value
-  );
   
-  private final JoystickButton aButton1 = new JoystickButton(
-    operator,
-    XboxController.Button.kA.value
-  );
-  private final JoystickButton bButton1 = new JoystickButton(
-    operator,
-    XboxController.Button.kB.value
-  );
- 
-  private final JoystickButton xButton1 = new JoystickButton(
-    operator,
-    XboxController.Button.kX.value
-  );
- 
-  private final JoystickButton leftStickButton1 = new JoystickButton(
-    operator,
-    XboxController.Button.kLeftStick.value
-  );
-
-  private final JoystickButton rightStickButton1 = new JoystickButton(
-    operator,
-    XboxController.Button.kRightStick.value
-  );
-  public final Elevator m_Elevator = new Elevator();
-  private final JoystickButton start = new JoystickButton(
-    operator,
-    XboxController.Button.kStart.value
-  );
-  private final JoystickButton leftBumper1 = new JoystickButton( //maybe we wanna change this to leftBumper
-    operator,
-    XboxController.Button.kLeftBumper.value
-  );
-  private final JoystickButton back = new JoystickButton(
-    operator,
-    XboxController.Button.kBack.value
-  );
-  private final JoystickButton rightBumper1 = new JoystickButton( //rightBumper
-    operator,
-    XboxController.Button.kRightBumper.value
-  );
+  private final JoystickButton yButton1 = new JoystickButton(operator,XboxController.Button.kY.value);
+  private final JoystickButton aButton1 = new JoystickButton(operator,XboxController.Button.kA.value);
+  private final JoystickButton bButton1 = new JoystickButton(operator,XboxController.Button.kB.value);
+  private final JoystickButton xButton1 = new JoystickButton(operator,XboxController.Button.kX.value);
+  private final JoystickButton leftStickButton1 = new JoystickButton(operator,XboxController.Button.kLeftStick.value);
+  private final JoystickButton rightStickButton1 = new JoystickButton(operator,XboxController.Button.kRightStick.value);
+  private final JoystickButton start = new JoystickButton(operator,XboxController.Button.kStart.value);
+  private final JoystickButton leftBumper1 = new JoystickButton( operator,XboxController.Button.kLeftBumper.value);
+  private final JoystickButton back = new JoystickButton(operator,XboxController.Button.kBack.value);
+  private final JoystickButton rightBumper1 = new JoystickButton( operator,XboxController.Button.kRightBumper.value);
   private final POVButton b7 = new POVButton(operator, 0);
-
   private final POVButton b8 = new POVButton(operator, 90);
-
   private final POVButton b9 = new POVButton(operator, 180);
-
   private final POVButton b10 = new POVButton(operator, 270);
 
-  /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
-   */
+
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
@@ -135,18 +89,14 @@ GenericHID operator = new GenericHID(1);
 
     AutoPath.addOption("Two Piece Blue NB", "Two Piece Blue NB");
     AutoPath.addOption("Two Piece Red NB", "Two Piece Red NB");
-
     AutoPath.addOption("Two Piece Red Balance", "Two Piece Red Balance");
     AutoPath.addOption("Two Piece Blue Balance", "Two Piece Blue Balance");
-
     AutoPath.setDefaultOption("Middle Blue", "Middle Blue");
     AutoPath.addOption("Middle Red", "Middle Red");
-
     AutoPath.addOption("Blue Right", "Blue Right");
     AutoPath.addOption("Red Left Balance", "Red Left Balance");
 
     SmartDashboard.putData("Auto Pathing", AutoPath);
-
 
     TeleopDrive closedFieldRel = new TeleopDrive(
         drivebase,
@@ -154,7 +104,6 @@ GenericHID operator = new GenericHID(1);
         () -> (Math.abs(-driverXbox.getRawAxis(0)) > OperatorConstants.LEFT_X_DEADBAND) ? -driverXbox.getRawAxis(0) : 0,
         () -> -driverXbox.getRawAxis(3), () -> true, false, false);
 
-  
     drivebase.setDefaultCommand(closedFieldRel);
 
   }
@@ -180,73 +129,51 @@ GenericHID operator = new GenericHID(1);
    */
   private void configureBindings() {
 
+ //  AButton.whileTrue(new RepeatCommand(new InstantCommand(drivebase::lock, drivebase)));
 
-    /* Driver Buttons */
-   // StartButton.onTrue((new InstantCommand(drivebase::zeroGyro)));
-    // YButton.onTrue(collectgamepiececommand);
-
-    // XButton.onTrue(cubeModeEngage);
-    // BButton.onTrue(cubeModeScore);
-
-    // LeftBumper.whileTrue(IntakeInwards);
-    // RightBumper.whileTrue(IntakeOutwards);
-
-    // AButton.onTrue(extendArmCommand);
-    // AButton.onFalse(retractArmCommand);
-
-    //AButton.whileTrue(new RepeatCommand(new InstantCommand(drivebase::lock, drivebase)));
     aButton1.onTrue(
-      m_Elevator.sequentialSetPositions(
-        Constants.elevatorFloor,
-        Constants.armFloor
-      )
-    );
+        m_Elevator.sequentialSetPositions(
+            Constants.elevatorFloor,
+           // Constants.armFloor
+          ));
 
     bButton1.onTrue(m_Elevator.setStow());
 
-    //Elevator Arm Presets
+    // Elevator Arm Presets
     xButton1.onTrue(
-      m_Elevator.sequentialSetPositions(
-        Constants.elevatorTopCone,
-        Constants.armTopCone
-      )
-    );
+        m_Elevator.sequentialSetPositions(
+            Constants.elevatorTopCone,
+            Constants.armTopCone
+            ));
     yButton1.onTrue(
-      m_Elevator.sequentialSetPositions(
-        Constants.elevatorMidCone,
-        Constants.armMidCone
-      )
-    );
+        m_Elevator.sequentialSetPositions(
+            Constants.elevatorMidCone,
+            Constants.armMidCone
+            ));
     start.onTrue(
-      m_Elevator.sequentialSetPositions(
-        Constants.elevatorTopCube,
-        Constants.armTopCube
-      )
-    );
+        m_Elevator.sequentialSetPositions(
+            Constants.elevatorTopCube,
+            Constants.armTopCube
+            ));
     back.onTrue(
-      m_Elevator.sequentialSetPositions(
-        Constants.elevatorMidCube,
-        Constants.armMidCube
-      )
-    );
+        m_Elevator.sequentialSetPositions(
+            Constants.elevatorMidCube,
+            Constants.armMidCube
+            ));
     rightStickButton1.onTrue(
-      m_Elevator.sequentialSetPositions(
-        Constants.elevatorShelf,
-        Constants.armShelf
-      )
-    );
+        m_Elevator.sequentialSetPositions(
+            Constants.elevatorShelf,
+            Constants.armShelf
+            ));
 
-    //dpad
-    b7.whileTrue(m_Elevator.armUp());
-    b8.whileTrue(m_Elevator.armDown());
+    // dpad for operator
+    //b7.whileTrue(m_Elevator.armUp());
+    //b8.whileTrue(m_Elevator.armDown());
     b9.whileTrue(m_Elevator.runUp());
     b10.whileTrue(m_Elevator.runDown());
 
-
     // Co-Driver Buttons on Dashboard
 
-    // IT IS IMPORTANT THAT YOU SUBTRACT THE X OFFSET FROM TAGS 1, 2, 3, 4 AND ADD
-    // THE OFFSET TO 5, 6, 7, 8
     SmartDashboard.putData("Drive to 1", driveToAprilTag(drivebase, 1, Rotation2d.fromDegrees(0),
         Rotation2d.fromDegrees(0), new Translation2d((-Constants.xOffset), 0)));
 
@@ -272,19 +199,17 @@ GenericHID operator = new GenericHID(1);
         Rotation2d.fromDegrees(180), new Translation2d((Constants.xOffset), 0)));
 
     // Intake Floor (rbump)
-
     // Set stow Arm preset (b)
-  
+
     // auto.onTrue(Commands.sequence(autoToConePickup(drivebase, 4, new
     // Translation2d(Units.inchesToMeters(-36), 0)),
     // IntakeOutwards,collectgamepiececommand));
 
     // new JoystickButton(driverXbox, 3).onTrue(new
     // InstantCommand(drivebase::addFakeVisionReading));
-    // new JoystickButton(driverXbox, 4).onTrue(driveToAprilTag(drivebase, 4,
-    // Rotation2d.fromDegrees(0),
-    // Rotation2d.fromDegrees(0), new Translation2d(Units.inchesToMeters(-36), 0)));
-    // new JoystickButton(driverXbox, 5).onTrue();
+    new JoystickButton(driverXbox, 4).onTrue(driveToAprilTag(drivebase, 4,
+    Rotation2d.fromDegrees(0),
+    Rotation2d.fromDegrees(0), new Translation2d(Units.inchesToMeters(-36), 0)));
 
   }
 
@@ -309,11 +234,11 @@ GenericHID operator = new GenericHID(1);
         fart.withTimeout(.05),
         poop.withTimeout(.05));
 
-      //  Autos.exampleAuto(drivebase, AutoPath.getSelected()));
+    // Autos.exampleAuto(drivebase, AutoPath.getSelected()));
   }
 
   public void setDriveMode() {
-    //drivebase.setDefaultCommand();
+    // drivebase.setDefaultCommand();
   }
 
   public void setMotorBrake(boolean brake) {
@@ -371,10 +296,11 @@ GenericHID operator = new GenericHID(1);
         new PathPoint(aprilTagField.getTagPose(id).get().getTranslation()
             .toTranslation2d().plus(offset),
             Rotation2d.fromDegrees(0), Rotation2d.fromDegrees(0)));
-    // swerve.postTrajectory(path);
+     swerve.postTrajectory(path);
     return Commands.sequence(new FollowTrajectory(swerve, path, false),
-        new RunCommand(() -> Arm.setIntakeSpeed(-.5)),
-        new RunCommand(() -> Arm.setArmPosition(47, 75)));
+        // new RunCommand(() -> Arm.setIntakeSpeed(-.5)),
+        // new RunCommand(() -> Arm.setArmPosition(47, 75))
+        );
   }
 
 }

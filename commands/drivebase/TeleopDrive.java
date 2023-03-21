@@ -76,7 +76,7 @@ public class TeleopDrive extends CommandBase
     double angVelocity = Math.pow(omega.getAsDouble(), 3);
     SmartDashboard.putNumber("vX", xVelocity);
     SmartDashboard.putNumber("vY", yVelocity);
-    SmartDashboard.putNumber("omega", angVelocity);
+   // SmartDashboard.putNumber("omega", angVelocity);
     if (headingCorrection)
     {
       // Estimate the desired angle in radians.
