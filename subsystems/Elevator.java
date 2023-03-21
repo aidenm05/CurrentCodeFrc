@@ -38,9 +38,10 @@ public class Elevator extends SubsystemBase {
       .1
     );
 
+    mainMotor = new WPI_TalonFX(4); 
+
 //need to add second motor configured simmlar to main that acts as the shoulder in conjunction with the eleavyion motor
 //shoudlermotor = new WPI_TalonFX(16);
-      mainMotor = new WPI_TalonFX(4); 
 //shoudlermotor.configselectedfeedbacksensor(talonfxfeedbackdevice.integratedsensor, 0, 30);
 //shoudlermotor.setinverted(talonfxinverttype.clockwise);
 //shoudlermotor.setneutralmode(neutralmode.brake);
@@ -96,8 +97,6 @@ mainMotor.configSelectedFeedbackSensor(
         10,
         Constants.kTimeoutMs
       );
-
-      /* Set the peak and nominal outputs */
       mainMotor.configNominalOutputForward(0, Constants.kTimeoutMs);
       mainMotor.configNominalOutputReverse(0, Constants.kTimeoutMs);
       mainMotor.configPeakOutputForward(1, Constants.kTimeoutMs);
@@ -120,21 +119,14 @@ mainMotor.configSelectedFeedbackSensor(
       mainMotor.configMotionCruiseVelocity(17000, Constants.kTimeoutMs);
       mainMotor.configMotionAcceleration(17000, Constants.kTimeoutMs);
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------
-  //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-      /* Set acceleration and vcruise velocity - see documentation */
       mainMotor.configForwardSoftLimitEnable(true);
       mainMotor.configForwardSoftLimitThreshold(Constants.elevatorUpperLimit);
-
-
-      //DISABLE MOTION MAGIC
-     // mainMotor.set(ControlMode.PercentOutput, 0.03);
-    }
+        }
   
-
   // public double feedForward() {
-  //   double armPos = armMotor.getSelectedSensorPosition();
+  //   double shoulderPos = shoulderMotor.getSelectedSensorPosition();
   //   double degrees =
-  //     (armPos - Constants.horizontalPos) / Constants.ticksPerDegrees;
+  //     (shoulderPos - Constants.horizontalPos) / Constants.ticksPerDegrees;
   //   double radians = java.lang.Math.toRadians(degrees);
   //   double cosineScalar = java.lang.Math.cos(radians);
   //   return Constants.maxFF * cosineScalar;
@@ -158,41 +150,41 @@ mainMotor.configSelectedFeedbackSensor(
   }
 
   public CommandBase shoulderdown() {
-    return run(() -> armMotor.set(TalonFXControlMode.PercentOutput, -0.1))
+    return run(() -> shoulderMotor.set(TalonFXControlMode.PercentOutput, -0.1))
       .finallyDo(interrupted ->
-        armMotor.set(ControlMode.PercentOutput, feedForward())
+        shoulderMotor.set(ControlMode.PercentOutput, feedForward())
       )
       .withName("shoulderdown");
   }
 
-  public CommandBase armUp() {
-    return run(() -> armMotor.set(TalonFXControlMode.PercentOutput, 0.1))
+  public CommandBase shoulderUp() {
+    return run(() -> shoulderMotor.set(TalonFXControlMode.PercentOutput, 0.1))
       .finallyDo(interrupted ->
-        armMotor.set(ControlMode.PercentOutput, feedForward())
+        shoulderMotor.set(ControlMode.PercentOutput, feedForward())
       )
-      .withName("armUp");
+      .withName("shoulderUp");
   }
 
-  public void armAndElevatorStopPercentMode() {
+  public void shoulderAndElevatorStopPercentMode() {
     // if (!DriverStation.isAutonomous()) {
-    armMotor.set(TalonFXControlMode.PercentOutput, feedForward());
+    shoulderMotor.set(TalonFXControlMode.PercentOutput, feedForward());
     mainMotor.set(TalonFXControlMode.PercentOutput, 0.03);
     // }
   }
 
   public CommandBase sequentialSetPositions(
     final int elevatorPosition,
-    int armPosition
+    int shoulderPosition
   ) {
     mainMotor.selectProfileSlot(Constants.kSlotIdx0, Constants.kPIDLoopIdx);
     return runOnce(() ->
-        armMotor.set(TalonFXControlMode.MotionMagic, Constants.armUpperLimit)
+        shoulderMotor.set(TalonFXControlMode.MotionMagic, Constants.shoulderUpperLimit)
       )
       .andThen(
         Commands
           .waitUntil(() ->
-            armMotor.getActiveTrajectoryPosition() >
-            Constants.armUpperLimit -
+            shoulderMotor.getActiveTrajectoryPosition() >
+            Constants.shoulderUpperLimit -
             100
           )
           .withTimeout(1)
@@ -218,40 +210,40 @@ mainMotor.configSelectedFeedbackSensor(
           .withTimeout(1.5)
       )
       .andThen(
-        runOnce(() -> armMotor.set(TalonFXControlMode.MotionMagic, armPosition))
+        runOnce(() -> shoulderMotor.set(TalonFXControlMode.MotionMagic, shoulderPosition))
       )
       .andThen(
         Commands
           .waitUntil(() ->
-            armMotor.getActiveTrajectoryPosition() < armPosition + 20 &&
-            armMotor.getActiveTrajectoryPosition() > armPosition - 20
+            shoulderMotor.getActiveTrajectoryPosition() < shoulderPosition + 20 &&
+            shoulderMotor.getActiveTrajectoryPosition() > shoulderPosition - 20
           )
           .withTimeout(1)
       )
-      .andThen(runOnce(() -> this.armAndElevatorStopPercentMode()));
+      .andThen(runOnce(() -> this.shoulderAndElevatorStopPercentMode()));
   }
 
   // Test this
   public CommandBase setStow() {
     mainMotor.selectProfileSlot(Constants.kSlotIdx1, Constants.kPIDLoopIdx);
     return runOnce(() ->
-        armMotor.set(TalonFXControlMode.MotionMagic, Constants.armUpperLimit)
+        shoulderMotor.set(TalonFXControlMode.MotionMagic, Constants.shoulderUpperLimit)
       )
       // .andThen(
       //   Commands
       // .waitUntil(() ->
-      //   armMotor.getActiveTrajectoryPosition() >
-      //   Constants.armUpperLimit -
+      //   shoulderMotor.getActiveTrajectoryPosition() >
+      //   Constants.shoulderUpperLimit -
       //   100 &&
-      //   armMotor.getActiveTrajectoryPosition() <
-      //   Constants.armUpperLimit +
+      //   shoulderMotor.getActiveTrajectoryPosition() <
+      //   Constants.shoulderUpperLimit +
       //   100
       // )
       // .withTimeout(1)
       //) // set to current upperlimit
       .andThen(
         runOnce(() ->
-          armMotor.configForwardSoftLimitThreshold(Constants.armStow)
+          shoulderMotor.configForwardSoftLimitThreshold(Constants.shoulderStow)
         )
       ) // set soft limit to be stow position
       .andThen(
@@ -278,24 +270,24 @@ mainMotor.configSelectedFeedbackSensor(
       )
       .andThen(
         runOnce(() ->
-          armMotor.set(TalonFXControlMode.MotionMagic, Constants.armStow)
+          shoulderMotor.set(TalonFXControlMode.MotionMagic, Constants.shoulderStow)
         )
-      ) //^wait until finished, set arm to stow
+      ) //^wait until finished, set shoulder to stow
       .andThen(
         Commands
           .waitUntil(() ->
-            armMotor.getActiveTrajectoryPosition() > Constants.armStow - 20 &&
-            armMotor.getActiveTrajectoryPosition() < Constants.armStow + 20
+            shoulderMotor.getActiveTrajectoryPosition() > Constants.shoulderStow - 20 &&
+            shoulderMotor.getActiveTrajectoryPosition() < Constants.shoulderStow + 20
           )
           .withTimeout(3)
       ) //wait until finished
       .andThen(
         runOnce(() ->
-          armMotor.configForwardSoftLimitThreshold(Constants.armUpperLimit)
+          shoulderMotor.configForwardSoftLimitThreshold(Constants.shoulderUpperLimit)
         )
       )
       // ) //set soft limit back to what it was
-      .andThen(runOnce(() -> this.armAndElevatorStopPercentMode()));
+      .andThen(runOnce(() -> this.shoulderAndElevatorStopPercentMode()));
   }
 
   @Override
@@ -305,12 +297,12 @@ mainMotor.configSelectedFeedbackSensor(
       mainMotor.getSelectedSensorPosition()
     );
     SmartDashboard.putNumber(
-      "armEncoderVal",
-      armMotor.getSelectedSensorPosition()
+      "shoulderEncoderVal",
+      shoulderMotor.getSelectedSensorPosition()
     );
     SmartDashboard.putNumber(
       "Active Trajectory Position",
-      armMotor.getActiveTrajectoryPosition()
+      shoulderMotor.getActiveTrajectoryPosition()
     );
   }
 }

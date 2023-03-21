@@ -33,45 +33,39 @@ import com.frcteam3255.components.SN_Blinkin;
 import com.frcteam3255.components.SN_Blinkin.PatternType;
 
 public class Robot extends TimedRobot {
+  
   private static final double kUnitsPerRevolution = 360;
-
-  private Command m_autonomousCommand;
-
-  private RobotContainer m_robotContainer;
-  private Timer timer;
-  // public SN_Blinkin ledController;
-
-  private Timer disabledTimer;
-  /* Hardware */
-  static XboxController _operator = new XboxController(2);
+  public Command m_autonomousCommand;
+  public RobotContainer m_robotContainer;
+  public Timer timer;
+  public Timer disabledTimer;
+  private XboxController _operator = new XboxController(2);
   private TalonFX elevator_crude = new TalonFX(4);
   private TalonFX _gearbox = new TalonFX(16);
-
-  public static TalonFX wrist = new TalonFX(24);
-  private final I2C.Port i2cPort = I2C.Port.kOnboard;
-
+  public TalonFX wrist = new TalonFX(24);
+  public I2C.Port i2cPort = I2C.Port.kOnboard;
   public DigitalInput bottomlimit = new DigitalInput(0);
-  static TalonFX intake_batman = new TalonFX(23);
-  static TalonFX intake_robin = new TalonFX(20);
-  public final PneumaticHub phub = new PneumaticHub(15);
-  private Solenoid batsolenoid = new Solenoid(15, PneumaticsModuleType.REVPH, 7);
-  private Solenoid robsolenoid = new Solenoid(15, PneumaticsModuleType.REVPH, 0);
+  public TalonFX intake_batman = new TalonFX(23);
+  public TalonFX intake_robin = new TalonFX(20);
+  public PneumaticHub phub = new PneumaticHub(15);
+  public Solenoid batsolenoid = new Solenoid(15, PneumaticsModuleType.REVPH, 7);
+  public Solenoid robsolenoid = new Solenoid(15, PneumaticsModuleType.REVPH, 0);
   public double _pos = wrist.getSelectedSensorPosition();
   public DutyCycleEncoder gearabsolute = new DutyCycleEncoder(1);
   public DutyCycleEncoder armabsolute = new DutyCycleEncoder(2);
-  private final ColorSensorV3 m_colorSensor = new ColorSensorV3(i2cPort);
+  public ColorSensorV3 m_colorSensor = new ColorSensorV3(i2cPort);
   public SN_Blinkin SN_Blinkin = new SN_Blinkin(6);
 
   @Override
   public void robotInit() {
     phub.enableCompressorAnalog(80, 100);// TODO: check limits
-
     PathPlannerServer.startServer(5811);
     wrist.clearStickyFaults();
     intake_batman.clearStickyFaults();
     intake_robin.clearStickyFaults();
     _gearbox.clearStickyFaults();
     elevator_crude.clearStickyFaults();
+    phub.enableCompressorAnalog(115, 120);
 
     // ------------------------------------------
     elevator_crude.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
@@ -79,21 +73,17 @@ public class Robot extends TimedRobot {
     wrist.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 20);
     elevator_crude.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 20);
     // ------------------------------------------
-
     phub.clearStickyFaults();
     timer = new Timer();
     CameraServer.startAutomaticCapture("driver_camera", 0);
     armabsolute.setDistancePerRotation(360.0);
     gearabsolute.setDistancePerRotation(360.0);
-    // SN_Blinkin.setPattern(PatternType.HotPink);
     m_robotContainer = new RobotContainer();
     disabledTimer = new Timer();
-
     intake_batman.setNeutralMode(NeutralMode.Brake);
     intake_robin.setNeutralMode(NeutralMode.Brake);
     elevator_crude.setNeutralMode(NeutralMode.Brake);
     _gearbox.setNeutralMode(NeutralMode.Brake);
-
     wrist.configFactoryDefault();
     intake_batman.configFactoryDefault();
     intake_robin.configFactoryDefault();
@@ -103,7 +93,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-
     CommandScheduler.getInstance().run();
   }
 
@@ -145,30 +134,21 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    phub.enableCompressorAnalog(80, 100);// TODO: check limits
+    phub.enableCompressorAnalog(80, 100);
     batsolenoid.set(false);
     robsolenoid.set(true);
     wrist.setNeutralMode(NeutralMode.Brake);
     armabsolute.reset();
-
-    // get the position offset from when the encoder was reset
     armabsolute.getPositionOffset();
-
-    // set the position offset to half a rotation
     armabsolute.setPositionOffset(0);
     gearabsolute.reset();
-
-    // get the position offset from when the encoder was reset
     gearabsolute.getPositionOffset();
-
-    // set the position offset to half a rotation
     gearabsolute.setPositionOffset(0);
-
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
     //m_robotContainer.setDriveMode();
-   // m_robotContainer.setMotorBrake(true);
+    // m_robotContainer.setMotorBrake(true);
   }
 
   @Override
@@ -179,30 +159,19 @@ public class Robot extends TimedRobot {
     double pos_Rotations = (double) selSenPos / kUnitsPerRevolution;
     double vel_RotPerSec = (double) selSenVel / kUnitsPerRevolution * 10; /* scale per100ms to perSecond */
     double vel_RotPerMin = vel_RotPerSec * 60.0;
-    boolean toggle = false; 
-    SmartDashboard.putNumber("Motor-out: %.2f | ", appliedMotorOutput);
-    SmartDashboard.putNumber("Pos-units: %.2f | ", selSenPos);
-    SmartDashboard.putNumber("Vel-unitsPer100ms: %.2f | ", selSenVel);
-    SmartDashboard.putNumber("Pos-Rotations:%.3f | ", pos_Rotations);
-    SmartDashboard.putNumber("Vel-RotPerSec:%.3f | ", vel_RotPerSec);
-    SmartDashboard.putNumber("Vel-RotPerMin:%.3f | ", vel_RotPerMin);
+    boolean toggle = false;
+    Color detectedColor = m_colorSensor.getColor();
+    _gearbox.set(TalonFXControlMode.PercentOutput, _operator.getLeftY());
 
-    /* get the raw sensor values */
+//---------------------------------------------------------- 
     int rawPos = wrist.getSelectedSensorPosition(0);
     int rawVel = wrist.getSelectedSensorVelocity(0);
     int rawCur = wrist.getStatorCurrent();
-    /* get the converted sensor values */
+//---------------------------------------------------------- 
     double posRot = wrist.getSelectedSensorPosition(0) * 360.0 / 4096.0;
     double velRPM = wrist.getSelectedSensorVelocity(0) * 600.0 / 4096.0;
     double curAmp = wrist.getStatorCurrent() / 100.0;
-
-    SmartDashboard.putNumber("RawPos: %.2f | ", rawPos);
-    SmartDashboard.putNumber("RawVel: %.2f | ", rawVel);
-    SmartDashboard.putNumber("RawCur: %.2f | ", rawCur);
-    SmartDashboard.putNumber("PosRot: %.2f | ", posRot);
-    SmartDashboard.putNumber("VelRPM: %.2f | ", velRPM);
-    SmartDashboard.putNumber("CurAmp: %.2f | ", curAmp);
-
+//----------------------------------------
     if (_operator.getXButton()) {
       batsolenoid.set(true);
       robsolenoid.set(false);
@@ -218,14 +187,15 @@ public class Robot extends TimedRobot {
         toggle = false;
       }
     }
-  if(toggle == true){
+
+    if(toggle == true){
   batsolenoid.set(true);
   robsolenoid.set(false);
   } else {
   batsolenoid.set(false);
   robsolenoid.set(true);
   }
-
+//---------------------------------------------------------------------------------------------
     if (_operator.getRightBumper()) {
       intake_batman.set(TalonFXControlMode.PercentOutput, .2);
       intake_robin.set(TalonFXControlMode.PercentOutput, -.2);
@@ -249,10 +219,8 @@ public class Robot extends TimedRobot {
     } else if (_operator.getRightTriggerAxis() > 0) {
       wrist.set(ControlMode.PercentOutput, -_operator.getRightTriggerAxis() / 4);
     } else {
-      wrist.set(ControlMode.Position, wrist.getSelectedSensorPosition() + 1);
+      wrist.set(ControlMode.Position, wrist.getSelectedSensorPosition() + 20);
     }
-
-    Color detectedColor = m_colorSensor.getColor();
 
     if (detectedColor.blue > .3) {
       SN_Blinkin.setPattern(PatternType.BPMPartyPalette);
@@ -261,27 +229,36 @@ public class Robot extends TimedRobot {
     } else {
       SN_Blinkin.setPattern(PatternType.HotPink);
     }
+
     SmartDashboard.putNumber("Red", detectedColor.red);
     SmartDashboard.putNumber("Green", detectedColor.green);
     SmartDashboard.putNumber("Blue", detectedColor.blue);
     SmartDashboard.putNumber("armduty", armabsolute.getDistance());
     SmartDashboard.putNumber("gearduty", gearabsolute.getDistance());
-    SmartDashboard.putNumber("Wrist left encoder value", wrist.getSelectedSensorPosition());
-
-    _gearbox.set(TalonFXControlMode.PercentOutput, _operator.getLeftY());
-
-    phub.enableCompressorAnalog(115, 120);
+    SmartDashboard.putNumber("Motor-out", appliedMotorOutput);
+    SmartDashboard.putNumber("Pos-units", selSenPos);
+    SmartDashboard.putNumber("Vel-unitsPer100ms", selSenVel);
+    SmartDashboard.putNumber("Pos-Rotations", pos_Rotations);
+    SmartDashboard.putNumber("Vel-RotPerSec", vel_RotPerSec);
+    SmartDashboard.putNumber("Vel-RotPerMin", vel_RotPerMin);
+    SmartDashboard.putNumber("RawPos", rawPos);
+    SmartDashboard.putNumber("RawVel", rawVel);
+    SmartDashboard.putNumber("RawCur" , rawCur);
+    SmartDashboard.putNumber("PosRot", posRot);
+    SmartDashboard.putNumber("VelRPM", velRPM);
+    SmartDashboard.putNumber("CurAmp", curAmp);
+    SmartDashboard.putNumber("Wrist", wrist.getSelectedSensorPosition());
 
     if (bottomlimit.get()) {
       elevator_crude.set(TalonFXControlMode.PercentOutput, _operator.getRawAxis(5) / 3);
     } else {
-      elevator_crude.set(TalonFXControlMode.PercentOutput,.1 + (- (_operator.getRawAxis(5) / 3)));
+      elevator_crude.set(TalonFXControlMode.PercentOutput,-.1 + (- (_operator.getRawAxis(5) / 3)));
     }
+
   }
 
   @Override
   public void testInit() {
-    // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
   }
 

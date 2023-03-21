@@ -36,7 +36,6 @@ import frc.robot.commands.drivebase.TeleopDrive;
 import frc.robot.subsystems.SwerveSubsystem;
 import java.io.File;
 import java.util.function.DoubleSupplier;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
@@ -45,27 +44,16 @@ import com.pathplanner.lib.PathPoint;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-/**
- * This class is where the bulk of the robot should be declared. Since
- * Command-based is a "declarative" paradigm, very
- * little robot logic should actually be handled in the {@link Robot} periodic
- * methods (other than the scheduler calls).
- * Instead, the structure of the robot (including subsystems, commands, and
- * trigger mappings) should be declared here.
- */
 public class RobotContainer {
   private static final SendableChooser<String> AutoPath = new SendableChooser<>();
-  private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
-      "swerve/falcon"));
-      
+  private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/falcon"));
   public final Elevator m_Elevator = new Elevator();
 
-  GenericHID driverXbox = new GenericHID(0);
+  public final GenericHID driverXbox = new GenericHID(0);
   // private final GenericHID conOperator = new GenericHID(2);
-  GenericHID operator = new GenericHID(1);
+  public final GenericHID operator = new GenericHID(1);
 
   private static AprilTagFieldLayout aprilTagField = null;
-  
   private final JoystickButton yButton1 = new JoystickButton(operator,XboxController.Button.kY.value);
   private final JoystickButton aButton1 = new JoystickButton(operator,XboxController.Button.kA.value);
   private final JoystickButton bButton1 = new JoystickButton(operator,XboxController.Button.kB.value);
@@ -165,14 +153,10 @@ public class RobotContainer {
             Constants.elevatorShelf,
             Constants.armShelf
             ));
-
-    // dpad for operator
     //b7.whileTrue(m_Elevator.armUp());
     //b8.whileTrue(m_Elevator.armDown());
     b9.whileTrue(m_Elevator.runUp());
     b10.whileTrue(m_Elevator.runDown());
-
-    // Co-Driver Buttons on Dashboard
 
     SmartDashboard.putData("Drive to 1", driveToAprilTag(drivebase, 1, Rotation2d.fromDegrees(0),
         Rotation2d.fromDegrees(0), new Translation2d((-Constants.xOffset), 0)));
@@ -198,15 +182,13 @@ public class RobotContainer {
     SmartDashboard.putData("Drive to 8", driveToAprilTag(drivebase, 8, Rotation2d.fromDegrees(180),
         Rotation2d.fromDegrees(180), new Translation2d((Constants.xOffset), 0)));
 
-    // Intake Floor (rbump)
-    // Set stow Arm preset (b)
-
     // auto.onTrue(Commands.sequence(autoToConePickup(drivebase, 4, new
     // Translation2d(Units.inchesToMeters(-36), 0)),
     // IntakeOutwards,collectgamepiececommand));
 
     // new JoystickButton(driverXbox, 3).onTrue(new
     // InstantCommand(drivebase::addFakeVisionReading));
+
     new JoystickButton(driverXbox, 4).onTrue(driveToAprilTag(drivebase, 4,
     Rotation2d.fromDegrees(0),
     Rotation2d.fromDegrees(0), new Translation2d(Units.inchesToMeters(-36), 0)));
@@ -226,7 +208,6 @@ public class RobotContainer {
     Command fart = new RunCommand(() -> Robot.intake_robin.set(ControlMode.PercentOutput, 0.5));
     Command poop = new RunCommand(() -> Robot.intake_batman.set(ControlMode.PercentOutput, -.5));
 
-    // An example command will be run in autonomous
     return Commands.sequence(
         zero.withTimeout(1.2),
         reachout.withTimeout(1.40),

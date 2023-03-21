@@ -1,0 +1,8 @@
+
+const shoulderMotor = new Motor(1);
+shoulderMotor.configure(Motor.DIRECTION_CW, Motor.SPEED_SLOW);
+
+//need to add a third motor configured simmilar to main that acts as the elbow in conjunction with the shoulder motor
+
+const elbowMotor = new Motor(2);
+elbowMotor.configure(Motor.DIRECTION_CW, Motor.SPEED_SLOW);
